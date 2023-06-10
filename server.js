@@ -1,17 +1,22 @@
 const inquirer = require("inquirer");
-const mysql = require('mysql2');
-
-// TODO connect to mysql database
-const connection = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "schema"
-});
-connection.connect();
+const db = require("./config/connection");
 
 async function displayDepartments() {
-    // TODO implement a function to select all departments from MySQL
+    const [ departments ] = await db.promise().query("SELECT name AS Department FROM department")
+    console.table(departments)
+    handleOptions();
+}
+
+async function displayRoles() {
+    const [ roles ] = await db.promise().query("SELECT title AS Role, salary AS Salary, department.name AS Department FROM role LEFT JOIN department on role.department_id = department.id;")
+    console.table(roles)
+    handleOptions();
+}
+
+async function displayEmployees() {
+    const [ employees ] = await db.promise().query("SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee")
+    console.table(employees)
+    handleOptions();
 }
 
 async function handleOptions() {
@@ -24,18 +29,107 @@ async function handleOptions() {
         'Add an Employee',
         'Update an Employee Role'
     ]
+
     const results = await inquirer.prompt([{
         message: 'What would you like to do?',
         name: 'command',
-        type: 'lists',
+        type: 'list',
         choices: options,
     }]);
+
     if (results.command == 'View All Departments') {
         displayDepartments();
-        handleOptions();
     } else if (results.command == 'View All Roles') {
+        displayRoles();
+    } else if (results.command == 'View All Employees') {
+        displayEmployees();
+    } else if (results.command == 'Add a Department') {
+        addDepartment();
+    } else if (results.command == 'Add a Role') {
+        addRole();
+    } else if (results.command == 'Add an Employee') {
+        addEmployee();
+    } else if (results.command == 'Update an Employee Role') {
 
-    }
+    };
+};
+
+async function addDepartment() {
+    const [ departments ] = await db.promise().query("SELECT * FROM department")
+    const departmentArray = departments.map(({id, name}) => ({name: name, value:id}))
+    const { title, salary, department_id } = await inquirer.prompt([
+        {type: "input",
+        name: "title",
+        message: "enter employees role"},
+        {type: "number",
+        name: "salary",
+        message: "enter employees salary"},
+        {type: "list",
+        name: "department_id",
+        choices: departmentArray,
+        message: "select employees department"}
+    ])
+    const roleObj = { title, salary, department_id }
+    db.promise().query("INSERT INTO role SET ?", roleObj).then(response => {
+        if(response.affectedRows >0) {
+        displayRoles() 
+        } else { 
+            console.error("Failed to add role")
+            handleOptions()
+        }
+    }) 
+}
+
+async function addRole() {
+    const [ departments ] = await db.promise().query("SELECT * FROM department")
+    const departmentArray = departments.map(({id, name}) => ({name: name, value:id}))
+    const { title, salary, department_id } = await inquirer.prompt([
+        {type: "input",
+        name: "title",
+        message: "enter employees role"},
+        {type: "number",
+        name: "salary",
+        message: "enter employees salary"},
+        {type: "list",
+        name: "department_id",
+        choices: departmentArray,
+        message: "select employees department"}
+    ])
+    const roleObj = { title, salary, department_id }
+    db.promise().query("INSERT INTO role SET ?", roleObj).then(response => {
+        if(response.affectedRows >0) {
+        displayRoles() 
+        } else { 
+            console.error("Failed to add role")
+            handleOptions()
+        }
+    }) 
+}
+
+async function addEmployee() {
+    const [ departments ] = await db.promise().query("SELECT * FROM department")
+    const departmentArray = departments.map(({id, name}) => ({name: name, value:id}))
+    const { title, salary, department_id } = await inquirer.prompt([
+        {type: "input",
+        name: "title",
+        message: "enter employees role"},
+        {type: "number",
+        name: "salary",
+        message: "enter employees salary"},
+        {type: "list",
+        name: "department_id",
+        choices: departmentArray,
+        message: "select employees department"}
+    ])
+    const roleObj = { title, salary, department_id }
+    db.promise().query("INSERT INTO role SET ?", roleObj).then(response => {
+        if(response.affectedRows >0) {
+        displayRoles() 
+        } else { 
+            console.error("Failed to add role")
+            handleOptions()
+        }
+    }) 
 }
 
 handleOptions();
