@@ -1,18 +1,21 @@
 const inquirer = require("inquirer");
 const db = require("./config/connection");
 
+// Shows all departments
 async function displayDepartments() {
     const [ departments ] = await db.promise().query("SELECT name AS Department FROM department")
     console.table(departments)
     handleOptions();
 }
 
+// Shows all Roles
 async function displayRoles() {
     const [ roles ] = await db.promise().query("SELECT title AS Role, salary AS Salary, department.name AS Department FROM role LEFT JOIN department on role.department_id = department.id;")
     console.table(roles)
     handleOptions();
 }
 
+// Shows all Employees
 async function displayEmployees() {
     const [ employees ] = await db.promise().query("SELECT CONCAT(first_name, ' ', last_name) AS name FROM employee")
     // TODO Add in job title, department, salaries, and managers
@@ -20,6 +23,7 @@ async function displayEmployees() {
     handleOptions();
 }
 
+// Function to show list of options user could choose from
 async function handleOptions() {
     const options = [
         'View All Departments',
@@ -31,13 +35,14 @@ async function handleOptions() {
         'Update an Employee Role'
     ]
 
+    // First user prompt to ask user to choose from the list of options
     const results = await inquirer.prompt([{
         message: 'What would you like to do?',
         name: 'command',
         type: 'list',
         choices: options,
     }]);
-
+    
     if (results.command == 'View All Departments') {
         displayDepartments();
     } else if (results.command == 'View All Roles') {
@@ -55,6 +60,7 @@ async function handleOptions() {
     };
 };
 
+// Function to add department
 async function addDepartment() {
     await inquirer.prompt([
         {type: "input",
@@ -65,13 +71,14 @@ async function addDepartment() {
     }).then(displayDepartments()) 
 }
 
+// Function to add a role
 async function addRole() {
     const [ departments ] = await db.promise().query("SELECT * FROM department")
     const departmentArray = departments.map(({id, name}) => ({name: name, value:id}))
     const { title, salary, department_id } = await inquirer.prompt([
         {type: "input",
         name: "title",
-        message: "enter employees role"},
+        message: "enter employees name"},
         {type: "number",
         name: "salary",
         message: "enter employees salary"},
@@ -91,24 +98,26 @@ async function addRole() {
     }) 
 }
 
+// Function to add employee
 async function addEmployee() {
     const [ employees ] = await db.promise().query("SELECT * FROM employee")
     const employeesArray = employees.map(({id, name}) => ({name: name, value:id}))
     const {role_id, first_name, last_name, manager_id } = await inquirer.prompt([
         {type: "input",
-        name: "role_id",
-        message: "enter employees role id"},
-        {type: "input",
         name: "first_name",
         message: "enter employees first name"},
         {type: "input",
         name: "last_name",
-        message: "enter employees last name"},
+        message: "enter employees last name"},        
+        {type: "input",
+        name: "role_id",
+        message: "enter employees role id"},
         {type: "input",
         name: "manager_id",
         message: "enter manager id"
         }
         ])
+        // TODO find out why it keeps failing
     const employeeObj = { role_id, first_name, last_name, manager_id }
     db.promise().query("INSERT INTO employee SET ?", employeeObj).then(response => {
         if(response.affectedRows >0) {
@@ -120,6 +129,7 @@ async function addEmployee() {
     }) 
 }
 
+// Function to update employee
 async function updateEmployee() {
     await inquirer.prompt([
         {type: "input",

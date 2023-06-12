@@ -1,7 +1,7 @@
 const mysql = require('mysql2');
 require("dotenv").config();
 
-// TODO connect to mysql database
+// Connects to mysql database
 const connection = mysql.createConnection({
     host: "localhost",
     user: process.env.DB_USER,
@@ -9,6 +9,7 @@ const connection = mysql.createConnection({
     database: process.env.DB_NAME
 });
 
+// Error if it isn't connected to mysql database
 connection.connect(function (err) {
     if (err) throw err;
   });
