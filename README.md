@@ -6,7 +6,7 @@ This project is created to help track employees, roles, and departments within a
 
 Here is the link to the github for this project: https://github.com/jssoyoung/Employee-Tracker
 
-Here is the link to the website demonstration video: 
+Here is the link to the website demonstration video: https://drive.google.com/file/d/1fAGj88c_47sb-26qkJJ8EJG8peeLRIQH/view
 
 ## Installation
 
