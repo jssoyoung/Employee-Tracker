@@ -164,11 +164,11 @@ async function updateEmployee() {
         }
     ]).then(response => {
         employeeId = response.id
-    const sql = `UPDATE employee SET role_id = ? WHERE id = ${employeeId}`;
-    connection.query(sql, response.role_title, (err, result) => {
+        const sql = `UPDATE employee SET role_id = ? WHERE id = ${employeeId}`;
+         connection.query(sql, response.role_title, (err, result) => {
       if (err) throw err;
-    console.log("Employee has been updated!");
-    displayEmployees()
+        console.log("Employee has been updated!");
+        displayEmployees()
         })
     })
 }
